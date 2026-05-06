@@ -36,6 +36,14 @@ class MeshApp(App):
         "5": "Step-By-Step",
     }
 
+    DEPTH_MAP: ClassVar[dict[str, str]] = {
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+    }
+
     CSS = """
     Screen { align: center middle; }
     #logo { color: $success; text-style: bold; }
@@ -51,6 +59,8 @@ class MeshApp(App):
         self.pName = ""
         self.selected_llm = ""
         self.notes_format = ""
+        self.generate_recursive_notes = False
+        self.recursive_depth = 2
         self.api_key = ""
 
     def _option_list(self, mapping: dict[str, str]) -> list[str]:
@@ -92,9 +102,32 @@ class MeshApp(App):
         format_options = self._option_list(self.FORMAT_MAP)
         container.mount(OptionList(*format_options, id="format_select"))
 
+    def show_recursive_choice(self) -> None:
+        container = self._reset_center()
+        container.mount(Static("Generate notes for topics/subtopics? (Use \u2191/\u2193 arrows, Enter to select)", id="format_prompt"))
+        container.mount(OptionList("Yes", "No", id="recursive_select"))
+
+    def show_depth_selection(self) -> None:
+        container = self._reset_center()
+        container.mount(Static("Select recursion depth: (Use \u2191/\u2193 arrows, Enter to select)", id="format_prompt"))
+        depth_options = self._option_list(self.DEPTH_MAP)
+        container.mount(OptionList(*depth_options, id="depth_select"))
+
     def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
         if event.option_list.id == "format_select":
             self.notes_format = event.option.prompt
+            self.show_recursive_choice()
+        elif event.option_list.id == "recursive_select":
+            self.generate_recursive_notes = event.option.prompt == "Yes"
+            if self.generate_recursive_notes:
+                self.show_depth_selection()
+            else:
+                self.show_api_input()
+        elif event.option_list.id == "depth_select":
+            try:
+                self.recursive_depth = int(event.option.prompt)
+            except ValueError:
+                self.recursive_depth = 2
             self.show_api_input()
 
     def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -126,6 +159,14 @@ class MeshApp(App):
                 )
                 index_path = Path(self.project_config.project_folder_path()) / "Index.md"
                 index_path.write_text(index_md + "\n", encoding="utf-8")
+
+                if self.generate_recursive_notes:
+                    self.index_generator.generate_notes_from_index(
+                        index_markdown=index_md,
+                        project_root=Path(self.project_config.project_folder_path()),
+                        notes_format=self.notes_format,
+                        max_depth=self.recursive_depth,
+                    )
                 self.exit()
             except Exception as e:
                 self.notify(str(e), severity="error")
