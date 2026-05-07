@@ -40,6 +40,8 @@ When you finish the setup flow, Mesh:
 From the repo root:
 
 ```bash
+python -m src.main
+# or
 python src/main.py
 ```
 
