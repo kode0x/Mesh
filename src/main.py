@@ -14,7 +14,7 @@ from textual.widgets import Input, Static, OptionList, ProgressBar
 from textual.containers import Center, Vertical
 from textual.notifications import SeverityLevel
 
-from .config import (
+from config import (
     UIConstants,
     NOTE_FORMAT_MAP,
     DEPTH_MAP,
@@ -27,12 +27,12 @@ from .config import (
     CLEANUP_FINAL_DELAY,
     CLEANUP_EXIT_DELAY,
 )
-from .exceptions import ValidationError, ProjectError, APIError
-from .app_types import NoteFormat, RecursiveDepth, UIState, CleanupStep
-from .validators import validate_project_name, validate_api_key
-from .services import ProjectService, IndexService
-from .styles import CSS_STYLES
-from .logger import get_logger, setup_logging
+from exceptions import ValidationError, ProjectError, APIError
+from app_types import NoteFormat, RecursiveDepth, UIState, CleanupStep
+from validators import validate_project_name, validate_api_key
+from services import ProjectService, IndexService
+from styles import CSS_STYLES
+from logger import get_logger, setup_logging
 
 logger = get_logger(__name__)
 

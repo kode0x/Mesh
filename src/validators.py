@@ -7,12 +7,12 @@ Provides reusable validation logic for project names, API keys, and other inputs
 import re
 from typing import Tuple
 
-from .config import (
+from config import (
     INVALID_FILENAME_CHARS,
     MIN_PROJECT_NAME_LENGTH,
     MAX_PROJECT_NAME_LENGTH,
 )
-from .exceptions import ValidationError
+from exceptions import ValidationError
 
 
 def validate_project_name(name: str) -> Tuple[bool, str]:

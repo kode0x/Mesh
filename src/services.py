@@ -7,19 +7,19 @@ cleaner interfaces and error handling.
 
 from pathlib import Path
 
-from .config import (
+from config import (
     DEFAULT_LLM_MODEL,
     OPENROUTER_API_URL,
     API_TIMEOUT_SECONDS,
     API_TEMPERATURE,
     INDEX_FILENAME,
 )
-from .exceptions import APIError, FileNotFoundError as MeshFileNotFoundError, ProjectError
-from .app_types import NoteFormat
-from .logger import get_logger
+from exceptions import APIError, FileNotFoundError as MeshFileNotFoundError, ProjectError
+from app_types import NoteFormat
+from logger import get_logger
 
 # Import existing modules for compatibility
-from .project_config import ProjectConfig, IndexGenerator
+from project_config import ProjectConfig, IndexGenerator
 
 logger = get_logger(__name__)
 
