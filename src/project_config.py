@@ -408,7 +408,38 @@ class IndexGenerator:
             raise RuntimeError(f"OpenRouter request failed: {e.reason}") from e
 
         parsed = json.loads(body)
-        return parsed["choices"][0]["message"]["content"].strip()
+        
+        # Validate API response structure
+        if not isinstance(parsed, dict) or "choices" not in parsed:
+            raise RuntimeError(
+                "The AI service returned an unexpected response format. Please try again or check your API key."
+            )
+        
+        choices = parsed.get("choices")
+        if not isinstance(choices, list) or len(choices) == 0:
+            raise RuntimeError(
+                "The AI service returned an unexpected response format. Please try again or check your API key."
+            )
+        
+        first_choice = choices[0]
+        if not isinstance(first_choice, dict) or "message" not in first_choice:
+            raise RuntimeError(
+                "The AI service returned an unexpected response format. Please try again or check your API key."
+            )
+        
+        message = first_choice.get("message")
+        if not isinstance(message, dict) or "content" not in message:
+            raise RuntimeError(
+                "The AI service returned an unexpected response format. Please try again or check your API key."
+            )
+        
+        content = message.get("content")
+        if not isinstance(content, str):
+            raise RuntimeError(
+                "The AI service returned an unexpected response format. Please try again or check your API key."
+            )
+        
+        return content.strip()
 
     def cleanup(self) -> None:
         """Clear API key from memory when program ends."""
@@ -419,13 +450,16 @@ class IndexGenerator:
         if not hasattr(self, "api_key"):
             return
 
-        print("API Deleting")
-
         try:
             if hasattr(self, "_api_key_file_path") and os.path.exists(self._api_key_file_path):
                 os.remove(self._api_key_file_path)
-        except OSError:
-            pass
+        except OSError as e:
+            # Log warning with user-friendly message
+            from logger import get_logger
+            logger = get_logger(__name__)
+            logger.warning(
+                "Could not remove temporary API key file. You may need to clean it up manually."
+            )
 
         self.api_key = ""
         del self.api_key

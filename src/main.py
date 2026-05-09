@@ -369,12 +369,20 @@ class MeshApp(App):
             
             self.state.index_md = index_path.read_text(encoding="utf-8")
             
+            # Null check for index_md
+            if self.state.index_md is None:
+                raise ProjectError("Index file is missing. Please generate it first.")
+            
             if not self.index_service:
                 raise ProjectError("Index service not initialized")
             
             root_folder = self.index_service.get_index_root_folder(self.state.index_md)
             notes_root = self.state.project_root / root_folder
             notes_root.mkdir(parents=True, exist_ok=True)
+            
+            # Null check before plan_notes call
+            if self.state.index_md is None:
+                raise ProjectError("Index file is missing. Please generate it first.")
             
             tasks = self.index_service.plan_notes(
                 self.state.index_md,
